@@ -16,7 +16,7 @@ resource "aws_instance" "this" {
   key_name               = var.key_name
   monitoring             = var.monitoring
   get_password_data      = var.get_password_data
-  vpc_security_group_ids = var.vpc_security_group_ids
+  vpc_security_group_ids = [aws_security_group.vpc_securitygroup.id]
   iam_instance_profile   = var.iam_instance_profile
 
   associate_public_ip_address = var.associate_public_ip_address
@@ -25,18 +25,6 @@ resource "aws_instance" "this" {
   ipv6_addresses              = var.ipv6_addresses
 
   ebs_optimized = var.ebs_optimized
-
-  dynamic "root_block_device" {
-    for_each = var.root_block_device
-    content {
-      delete_on_termination = lookup(root_block_device.value, "delete_on_termination", null)
-      encrypted             = lookup(root_block_device.value, "encrypted", null)
-      iops                  = lookup(root_block_device.value, "iops", null)
-      kms_key_id            = lookup(root_block_device.value, "kms_key_id", null)
-      volume_size           = lookup(root_block_device.value, "volume_size", null)
-      volume_type           = lookup(root_block_device.value, "volume_type", null)
-    }
-  }
 
   dynamic "ebs_block_device" {
     for_each = var.ebs_block_device
@@ -102,4 +90,70 @@ resource "aws_instance" "this" {
   credit_specification {
     cpu_credits = local.is_t_instance_type ? var.cpu_credits : null
   }
+}
+resource "aws_security_group" "vpc_securitygroup" {
+  #name_prefix            = "${var.prename}-"  # Conflicts with name.
+  name        = var.sg-name
+  description = var.description
+  vpc_id  = var.VPC_ID
+  dynamic "ingress" {
+    for_each = var.ingress_rules
+    content {
+      cidr_blocks      = lookup(ingress.value, "cidr_blocks", null)
+      description      = lookup(ingress.value, "description", null)
+      from_port        = lookup(ingress.value, "from_port", null)
+      ipv6_cidr_blocks = lookup(ingress.value, "ipv6_cidr_blocks", null)
+      prefix_list_ids  = lookup(ingress.value, "prefix_list_ids", null)
+      protocol         = lookup(ingress.value, "protocol", null)
+      security_groups  = lookup(ingress.value, "security_groups", null)
+      self             = lookup(ingress.value, "self", null)
+      to_port          = lookup(ingress.value, "to_port", null)
+    }
+  }
+
+  dynamic "egress" {
+    for_each = var.egress_rules
+    content {
+      cidr_blocks      = lookup(egress.value, "cidr_blocks", null)
+      description      = lookup(egress.value, "description", null)
+      from_port        = lookup(egress.value, "from_port", null)
+      ipv6_cidr_blocks = lookup(egress.value, "ipv6_cidr_blocks", null)
+      prefix_list_ids  = lookup(egress.value, "prefix_list_ids", null)
+      protocol         = lookup(egress.value, "protocol", null)
+      security_groups  = lookup(egress.value, "security_groups", null)
+      self             = lookup(egress.value, "self", null)
+      to_port          = lookup(egress.value, "to_port", null)
+    }
+  }
+  revoke_rules_on_delete = var.revoke_rules_on_delete
+  tags                   = var.sg-tags
+}
+
+resource "aws_security_group_rule" "ingress_tcp" {
+ 
+  type              = "ingress"
+  from_port         =  80 
+  to_port           = 80 
+  protocol          = "tcp"
+  cidr_blocks       = var.ingress_cidr_blocks  # ["0.0.0.0/0"] #Cannot be specified with source_security_group_id.
+  prefix_list_ids   = var.ingress_prefix_list_ids
+  #source_security_group_id = var.SSH_SG     #Cannot be specified with cidr_blocks and self.
+  ipv6_cidr_blocks = var.ingress_ipv6_cidr_blocks 
+  self = var.ingress_self                     #Cannot be specified with source_security_group_id.
+  description = "Allow Traffic to VPC"
+  security_group_id = join("", aws_security_group.vpc_securitygroup.*.id)
+}
+
+resource "aws_security_group_rule" "egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "-1"
+  cidr_blocks       = var.egress_cidr_blocks #["0.0.0.0/0"]  ##Cannot be specified with source_security_group_id.
+  prefix_list_ids   = var.egress_prefix_list_ids 
+  ipv6_cidr_blocks  = var.egress_ipv6_cidr_blocks 
+  #source_security_group_id =var.SSH_SG       # Cannot be specified with cidr_blocks and self.
+  self              = var.egress_self                #Cannot be specified with source_security_group_id.
+  description       = "Allow Traffic"
+  security_group_id = join("", aws_security_group.vpc_securitygroup.*.id)
 }

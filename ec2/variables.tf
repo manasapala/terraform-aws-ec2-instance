@@ -70,7 +70,10 @@ variable "monitoring" {
   type        = bool
   default     = false
 }
-
+variable "VPC_ID" {
+  type = string
+  default = "vpc-bfd11ad9"
+}
 variable "vpc_security_group_ids" {
   description = "A list of security group IDs to associate with"
   type        = list(string)
@@ -202,3 +205,132 @@ variable "num_suffix_format" {
   type        = string
   default     = "-%d"
 }
+variable "create_sg" {
+  description = "Toggle controlling whether to create the security group"
+  type        = bool
+  default     = true
+}
+variable "SSH_SG" {
+  default = ""
+
+}
+variable "prename" {
+  description = "Name of the Security Group"
+  type        = string
+  default = "vpc"
+}
+variable "sg-name" {
+  description = "Name of the Security Group"
+  type        = string
+  default = "sg"
+}
+
+variable "description" {
+  description = "Description of the Security Group"
+  type        = string
+  default     = "Managed by Terraform"
+}
+
+variable "ingress_rules" {
+  description = "A schema list of ingress rules for the Security Group"
+  type        = list
+  default     = []
+}
+
+variable "egress_rules" {
+  description = "A schema list of egress rules for the Security Group"
+  type        = list
+  default     = []
+}
+
+variable "revoke_rules_on_delete" {
+  description = "Determines whether to forcibly remove rules when destroying the security group"
+  type        = string
+  default     = false
+}
+
+variable "sg-tags" {
+  description = "A map of tags for the Security Group"
+  type        = map(string)
+  default     = {
+     key1 = "allow traffic" 
+  }
+}
+############################################
+#aws_security_group_rule variables
+variable "create_security_group" {
+  description = "Toggle controlling whether to create the security group"
+  type        = bool
+  default     = true
+}
+##########
+# Ingress
+##########
+
+
+variable "ingress_cidr_blocks" {
+  description = "List of IPv4 CIDR ranges to use on all ingress rules"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
+
+variable "ingress_ipv6_cidr_blocks" {
+  description = "List of IPv6 CIDR ranges to use on all ingress rules"
+  type        = list(string)
+  default     = ["::/0"]
+}
+
+variable "ingress_prefix_list_ids" {
+  description = "List of prefix list IDs (for allowing access to VPC endpoints) to use on all ingress rules"
+  type        = list(string)
+  default     = []
+}
+
+variable "ingress_self" {
+  type        = bool
+  default = false
+}
+
+
+variable "allowed_ports" {
+  type        = list(number)
+  description = "List of allowed ingress TCP ports"
+  default     = [80]
+}
+
+variable "allowed_ports_udp" {
+  type        = list(number)
+  description = "List of allowed ingress UDP ports"
+  default     = []
+}
+
+#########
+# Egress
+#########
+
+
+variable "egress_cidr_blocks" {
+  description = "List of IPv4 CIDR ranges to use on all egress rules"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
+
+variable "egress_ipv6_cidr_blocks" {
+  description = "List of IPv6 CIDR ranges to use on all egress rules"
+  type        = list(string)
+  default     = ["2001:db8::/64"]
+}
+
+variable "egress_prefix_list_ids" {
+  description = "List of prefix list IDs (for allowing access to VPC endpoints) to use on all egress rules"
+  type        = list(string)
+  default     = []
+}
+
+variable "egress_self" {
+  type        = bool
+  default = false
+}
+
+
+

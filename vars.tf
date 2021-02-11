@@ -26,10 +26,10 @@ variable "monitoring" {
     type = bool
     default = true
 }
-variable "vpc_security_group_ids" {
-    type = list
-    default = ["sg-ab6c54dd"]
-}
+#variable "vpc_security_group_ids" {
+#    type = list
+#    default = ["sg-ab6c54dd"]
+#}
 variable "subnet_id" {
     type = string
     default = "subnet-e37dc785"

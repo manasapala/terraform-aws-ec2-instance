@@ -14,3 +14,22 @@ output "public_ip" {
   description = "List of public IP addresses assigned to the instances, if applicable"
   value       = module.ec2_cluster.*.public_ip
 }
+output "sg-id" {
+  description = "The ID of the Security Group"
+  value       = join("", module.ec2_cluster.*.sg-id)
+}
+
+output "sg-arn" {
+  description = "The ARN of the Security Group"
+  value       = join("", module.ec2_cluster.*.sg-arn)
+}
+
+output "sg-name" {
+  description = "The name of the Security Group"
+  value       = join("", module.ec2_cluster.*.sg-name)
+}
+
+output "sg-owner_id" {
+  description = "The owner ID of the Security Group"
+  value       = join("", module.ec2_cluster.*.sg-owner_id)
+}

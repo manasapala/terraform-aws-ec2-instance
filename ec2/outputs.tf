@@ -112,3 +112,23 @@ output "instance_count" {
   description = "Number of instances to launch specified as argument to this module"
   value       = var.instance_count
 }
+
+output "sg-id" {
+  description = "The ID of the Security Group"
+  value       = join("", aws_security_group.vpc_securitygroup.*.id)
+}
+
+output "sg-arn" {
+  description = "The ARN of the Security Group"
+  value       = join("", aws_security_group.vpc_securitygroup.*.arn)
+}
+
+output "sg-name" {
+  description = "The name of the Security Group"
+  value       = join("", aws_security_group.vpc_securitygroup.*.name)
+}
+
+output "sg-owner_id" {
+  description = "The owner ID of the Security Group"
+  value       = join("", aws_security_group.vpc_securitygroup.*.owner_id)
+}
